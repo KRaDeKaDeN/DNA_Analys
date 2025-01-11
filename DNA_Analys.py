@@ -59,7 +59,7 @@ def load_Fasta_file():
             entry_sequence.insert(0, dna_sourse)
             process_analysis(dna_sourse)
     except Exception as e:
-        messagebox.showerror("Error failed to load file {e}")
+        messagebox.showerror(f"Error failed to load file {e}")
 
 
 def plot_distr_result(results):
