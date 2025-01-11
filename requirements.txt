@@ -1,1 +1,3 @@
-Tkinter
+tk
+matplotlib
+biopython
