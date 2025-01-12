@@ -19,6 +19,7 @@ def analyse_dna(dna_sourse):
 
     rna_sequence = dna_sourse.replace("T", "U")
 
+
     return {
         "length": len(dna_sourse),
         "count_a": count_a,
@@ -46,8 +47,8 @@ def process_analysis(dna_sourse):
 
 def load_Fasta_file():
     file_path = filedialog.askopenfilename(
-        title="chuse FASTA file",
-        filetypes=[("FASTA files*fasta *.fa"), ("All files", "*.*")],
+        title="select FASTA file",
+        filetypes=[("FASTA files","*.fasta", "*.fa"), ("All files", "*.*")],
     )
     if not file_path:
         return
@@ -98,7 +99,7 @@ entry_sequence.pack(pady=10)
 btn_analyse = tk.Button(window, text="Analyse", command=analyse_from_text)
 btn_analyse.pack(pady=10)
 
-btn_load_fasta = tk.Button(window, text="Load FASTA file")
+btn_load_fasta = tk.Button(window, text="Load FASTA file", command=load_Fasta_file)
 btn_load_fasta.pack(pady=10)
 
 result_text = tk.StringVar()
