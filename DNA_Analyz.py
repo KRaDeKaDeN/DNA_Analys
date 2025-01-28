@@ -11,9 +11,11 @@ class DNAAnalyzer:
         self.dna_sourse = dna_sourse.upper()
 
     def validate_sequence(self):
+        '''We check whether the sequence consists only of ATGC characters'''
         return all(base in "ATGC" for base in self.dna_sourse)
 
     def count_nucleotides(self):
+        '''Calculates and returns the number of nucleotides in the sequence'''
         return {
             "A": self.dna_sourse.count('A'),
             "T": self.dna_sourse.count('T'),
@@ -22,14 +24,17 @@ class DNAAnalyzer:
         }
 
     def gc_content(self):
+        '''Calculates the percentage of the content of nucletide pair GC'''
         counts = self.count_nucleotides()
         gc_count = counts["G"] + counts["C"]
         return (gc_count / len(self.dna_sourse))
 
     def transcribe(self):
+        '''Transcribes the introduced DNA in RNA replacing Timin with Uracyl'''
         return self.dna_sourse.replace('T', 'U')
 
     def find_codons(self, codons_type='start'):
+        '''Finds start or stop codon'''
         codons = []
         if codons_type == 'start':
             target_codons = ['ATG']
@@ -45,6 +50,7 @@ class DNAAnalyzer:
 
     @staticmethod
     def translate_rna_to_protein(rna_sequence):
+        '''Translate RNA into protein, genetic_code contains the accordance of triplets to their aminoacids'''
         genetic_code = {
             'AUG': 'M',
             'UUU': 'F',
@@ -174,6 +180,8 @@ class DNAApp:
             messagebox.showerror("Error", f"failed to upload the file: {e}")
 
     def analyze_sequence(self):
+        '''Getting a DNA sequence from the user. Writing down in variables results returned by functions from the DNAANALYZER class, 
+        Setting result in the previously created label_result widget'''
         self.dna_sourse = self.entry_sequence.get("1.0", tk.END).strip().upper()
         dna_analyzer = DNAAnalyzer(self.dna_sourse)
         if not dna_analyzer.validate_sequence():
@@ -198,6 +206,7 @@ class DNAApp:
         self.plot_codon_usage(rna_sequence)
 
     def plot_nucleotide_distribution(self, counts):
+        '''Building a circular distribution diagram of nucleotides'''
         for widget in self.graph_frame.winfo_children():
             widget.destroy()
         labels = ['A', 'C', 'T', 'G']
@@ -215,6 +224,7 @@ class DNAApp:
         canvas.get_tk_widget().pack()
         
     def plot_codon_usage(self,rna_sequence):
+        '''Building a schedule of number of codons (useless)'''
         codon_counts = {}
         for i in range(0, len(rna_sequence) - 2, 3):
             codon = rna_sequence[i:i + 3]
