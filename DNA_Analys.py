@@ -40,7 +40,7 @@ class DNAAnalyzer:
         for i in range(0, len(self.dna_sourse) - 2, 3):
             codon = self.dna_sourse[i:i + 3]
             if codon in target_codons: codons.append(i)
-            return codons
+        return codons
 
     @staticmethod
     def translate_rna_to_protein(rna_sequence):
@@ -111,6 +111,7 @@ class DNAAnalyzer:
                 if amino_acid == '*':
                     break
             protein.append(amino_acid)
+        else:
             protein.append('?')
         return ''.join(protein)
 
