@@ -120,7 +120,7 @@ class DNAApp:
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Analysis DNA and RNA")
+        self.root.title("Analyzis DNA and RNA")
         self.root.geometry("800x600")
         self.dna_sourse = ""
         self.result_text = tk.StringVar()
@@ -197,19 +197,19 @@ class DNAApp:
     def plot_nucleotide_distribution(self, counts):
         for widget in self.graph_frame.winfo_children():
             widget.destroy()
-            labels = ['A', 'C', 'T', 'G']
-            sizes = [counts['A'], counts['T'], counts['C'], counts['G']]
-            color = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99']
-            fig, ax = plt.subplots(figsize=(4, 4), dpi=100)
-            ax.pie(sizes,
-                   labels=labels,
-                   autopct='%1.1 f%%',
-                   startangle=90,
-                   colors=color)
-            ax.axis('equal')
-            canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
-            canvas.draw()
-            canvas.get_tk_widget().pack()
+        labels = ['A', 'C', 'T', 'G']
+        sizes = [counts['A'], counts['C'], counts['T'], counts['G']]
+        color = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99']
+        fig, ax = plt.subplots(figsize=(4, 4), dpi=100)
+        ax.pie(sizes,
+               labels=labels,
+               autopct='%1.1f%%',
+               startangle=90,
+               colors=color)
+        ax.axis('equal')
+        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
 
 
 if __name__ == "__main__":
