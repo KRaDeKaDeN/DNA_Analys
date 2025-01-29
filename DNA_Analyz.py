@@ -232,9 +232,9 @@ class DNAApp:
 
         fig, ax = plt.subplots(figsize=(10, 2), dpi=100)
         ax.bar(codon_counts.keys(), codon_counts.values(), color='skyblue')
-        ax.set_xlabel("Кодоны")
-        ax.set_ylabel("Частота")
-        ax.set_title("Частота встречаемости кодонов")
+        ax.set_xlabel("Codons")
+        ax.set_ylabel("Frequency")
+        ax.set_title("Codon occurrence frequency")
 
         canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
         canvas.draw()
