@@ -117,7 +117,7 @@ class DNAAnalyzer:
                 amino_acid = genetic_code[codon]
                 if amino_acid == '*':
                     break
-            protein.append(amino_acid)
+                protein.append(amino_acid)
         else:
             protein.append('?')
         return ''.join(protein)
@@ -171,10 +171,10 @@ class DNAApp:
             return
         try:
             with open(file_path, 'r') as file:
-                record = next(SeqIO.parse(file, "fasta"))
+                record = next(SeqIO.parse(file, "fasta-pearson"))
                 self.dna_sourse = str(record.seq)
-                self.entry_sequence.delete(0, tk.END)
-                self.entry_sequence.insert(0, self.dna_sourse)
+                self.entry_sequence.delete("1.0", tk.END)
+                self.entry_sequence.insert(tk.END, self.dna_sourse)
                 self.analyze_sequence()
         except Exception as e:
             messagebox.showerror("Error", f"failed to upload the file: {e}")
