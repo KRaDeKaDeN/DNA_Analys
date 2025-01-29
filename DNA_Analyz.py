@@ -27,7 +27,7 @@ class DNAAnalyzer:
         '''Calculates the percentage of the content of nucletide pair GC'''
         counts = self.count_nucleotides()
         gc_count = counts["G"] + counts["C"]
-        return (gc_count / len(self.dna_sourse))
+        return (gc_count / len(self.dna_sourse) * 100)
 
     def transcribe(self):
         '''Transcribes the introduced DNA in RNA replacing Timin with Uracyl'''
