@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox
 from Bio import SeqIO
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -11,8 +11,13 @@ class DNAAnalyzer:
         self.dna_sourse = dna_sourse.upper()
 
     def validate_sequence(self):
-        '''We check whether the sequence consists only of ATGC characters'''
-        return all(base in "ATGC" for base in self.dna_sourse)
+        """Check that sequence contains only ATGC characters"""
+        if not self.dna_sourse:
+            raise ValueError("The sequence is empty.")
+        invalid_chars = set(self.dna_sourse) - set("ATGC")
+        if invalid_chars:
+            raise ValueError(f"Invalid characters found: {invalid_chars}")
+        return True
 
     def count_nucleotides(self):
         '''Calculates and returns the number of nucleotides in the sequence'''
@@ -127,121 +132,140 @@ class DNAApp:
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Analyzis DNA and RNA")
-        self.root.geometry("1000x1000")
-        self.dna_sourse = ""
-        self.result_text = tk.StringVar()
-        self.create_widgets()
+        self.root.title("DNA Analysis Tool")
+        self.dna_source = ""
 
-    def create_widgets(self):
+        # Create tab control
+        self.notebook = ttk.Notebook(root)
+        self.notebook.pack(fill='both', expand=True)
 
-        label_instruction = tk.Label(
-            self.root, text="Enter DNA sequence or upload FASTA file:")
-        label_instruction.pack(pady=12)
-        self.entry_sequence = tk.Text(self.root, wrap=tk.WORD, width=100, height=6)
-        self.entry_sequence.pack(pady=5)
-        btn_analyse = tk.Button(self.root,
-                                text="Analyze",
-                                command=self.analyze_sequence)
-        btn_analyse.pack(pady=5)
-        btn_load_fasta = tk.Button(self.root,
-                                   text="Load FASTA file",
-                                   command=self.load_fasta_file)
-        btn_load_fasta.pack(pady=5)
-        label_result = tk.Label(self.root,
-                                textvariable=self.result_text,
-                                justify="left",
-                                bg="white",
-                                anchor="w",
-                                width=120,
-                                height=10,
-                                relief="solid",
-                                wraplength=800)
-        label_result.pack(pady=5, padx=5)
-        self.graph_frame = tk.Frame(self.root)
-        self.graph_frame.pack(pady=10)
+        # Create tabs
+        self.create_input_tab()
+        self.create_analysis_tab()
+        self.create_plots_tab()
 
-    def load_fasta_file(self):
-        file_path = filedialog.askopenfilename(title="load FASTA file",
-                                               filetypes=[("FASTA files",
-                                                           "*.fasta *.fa"),
-                                                          ("All files", "*.*")
-                                                          ])
-        if not file_path:
+    def create_input_tab(self):
+        """Create data input tab"""
+        self.input_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.input_tab, text="Data Input")
+
+        # Sequence input field
+        tk.Label(self.input_tab, text="Enter DNA sequence:").pack(pady=5)
+        self.sequence_text = tk.Text(self.input_tab, height=10, width=80)
+        self.sequence_text.pack(pady=5)
+
+        # File load button
+        ttk.Button(self.input_tab, text="Load FASTA",
+                   command=self.load_fasta).pack(pady=5)
+
+    def create_analysis_tab(self):
+        """Create analysis results tab"""
+        self.analysis_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.analysis_tab, text="Analysis")
+
+        # Results display area
+        self.results_text = tk.Text(self.analysis_tab, height=15, width=80)
+        self.results_text.pack(pady=10, padx=10)
+
+        # Analysis button
+        ttk.Button(self.analysis_tab,
+                   text="Run Analysis",
+                   command=self.run_analysis).pack(pady=5)
+
+    def create_plots_tab(self):
+        """Create visualization tab"""
+        self.plots_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.plots_tab, text="Visualizations")
+
+        # Plot frames
+        self.plot_frame1 = ttk.Frame(self.plots_tab)
+        self.plot_frame1.pack(side='top', fill='both', expand=True)
+
+        self.plot_frame2 = ttk.Frame(self.plots_tab)
+        self.plot_frame2.pack(side='top', fill='both', expand=True)
+
+    def load_fasta(self):
+        """Load FASTA file"""
+        filepath = filedialog.askopenfilename(filetypes=[("FASTA files",
+                                                          "*.fasta *.fa")])
+        if not filepath: 
             return
+
         try:
-            with open(file_path, 'r') as file:
-                record = next(SeqIO.parse(file, "fasta-pearson"))
-                self.dna_sourse = str(record.seq)
-                self.entry_sequence.delete("1.0", tk.END)
-                self.entry_sequence.insert(tk.END, self.dna_sourse)
-                self.analyze_sequence()
+            with open(filepath) as f:
+                record = next(SeqIO.parse(f, "fasta"))
+                self.dna_source = str(record.seq)
+                self.sequence_text.delete(1.0, tk.END)
+                self.sequence_text.insert(tk.END, self.dna_source)
         except Exception as e:
-            messagebox.showerror("Error", f"failed to upload the file: {e}")
+            messagebox.showerror("Error", f"Error loading file:\n{str(e)}")
 
-    def analyze_sequence(self):
-        '''Getting a DNA sequence from the user. Writing down in variables results returned by functions from the DNAANALYZER class, 
-        Setting result in the previously created label_result widget'''
-        self.dna_sourse = self.entry_sequence.get("1.0", tk.END).strip().upper()
-        dna_analyzer = DNAAnalyzer(self.dna_sourse)
-        if not dna_analyzer.validate_sequence():
-            messagebox.showerror(
-                "Error", "The sequence contains unacceptable characters")
-            return
-        counts = dna_analyzer.count_nucleotides()
-        gc_content = dna_analyzer.gc_content()
-        rna_sequence = dna_analyzer.transcribe()
-        start_codons = dna_analyzer.find_codons(codons_type="start")
-        stop_codons = dna_analyzer.find_codons(codons_type="stop")
-        protein = dna_analyzer.translate_rna_to_protein(rna_sequence)
-        self.result_text.set(
-            f"Length of sequence: {len(self.dna_sourse)}\n"
-            f"A: {counts['A']}, T: {counts['T']}, G: {counts['G']}, C: {counts['C']}\n"
-            f"GC-content: {gc_content:.2f}%\n"
-            f"Start-codons on positions: {start_codons}\n"
-            f"Stop-codons on positions: {stop_codons}\n"
-            f"RNA sequence: {rna_sequence}\n"
-            f"Protein sequence: {protein}")
-        self.plot_nucleotide_distribution(counts)
-        self.plot_codon_usage(rna_sequence)
+    def run_analysis(self):
+        """Run sequence analysis"""
+        self.dna_source = self.sequence_text.get(1.0, tk.END).strip().upper()
 
-    def plot_nucleotide_distribution(self, counts):
-        '''Building a circular distribution diagram of nucleotides'''
-        for widget in self.graph_frame.winfo_children():
-            widget.destroy()
-        labels = ['A', 'C', 'T', 'G']
-        sizes = [counts['A'], counts['C'], counts['T'], counts['G']]
-        color = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99']
-        fig, ax = plt.subplots(figsize=(3, 3), dpi=100)
-        ax.pie(sizes,
-               labels=labels,
-               autopct='%1.1f%%',
-               startangle=90,
-               colors=color)
-        ax.axis('equal')
-        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
-        
-    def plot_codon_usage(self,rna_sequence):
-        '''Building a schedule of number of codons (useless)'''
+        try:
+            analyzer = DNAAnalyzer(self.dna_source)
+            analyzer.validate_sequence()
+
+            # Perform calculations
+            counts = analyzer.count_nucleotides()
+            gc = analyzer.gc_content()
+            rna = analyzer.transcribe()
+            protein = analyzer.translate_rna_to_protein(rna)
+
+            # Generate report
+            report = (f"Sequence length: {len(self.dna_source)}\n"
+                      f"Nucleotide composition:\n"
+                      f"A: {counts['A']} | T: {counts['T']}\n"
+                      f"G: {counts['G']} | C: {counts['C']}\n"
+                      f"GC content: {gc:.2f}%\n\n"
+                      f"Start codons: {analyzer.find_codons('start')}\n"
+                      f"Stop codons: {analyzer.find_codons('stop')}\n\n"
+                      f"RNA: {rna[:50]}...\n\n"
+                      f"Protein: {protein}")
+
+            self.results_text.delete(1.0, tk.END)
+            self.results_text.insert(tk.END, report)
+            self.update_plots(analyzer)
+
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
+    def update_plots(self, analyzer):
+        """Update visualization plots"""
+        # Clear previous plots
+        for frame in [self.plot_frame1, self.plot_frame2]:
+            for widget in frame.winfo_children():
+                widget.destroy()
+
+        # Nucleotide distribution plot
+        counts = analyzer.count_nucleotides()
+        fig1 = plt.Figure(figsize=(4, 4))
+        ax1 = fig1.add_subplot(111)
+        ax1.pie(counts.values(), labels=counts.keys(), autopct='%1.1f%%')
+        ax1.set_title("Nucleotide Distribution")
+        canvas1 = FigureCanvasTkAgg(fig1, self.plot_frame1)
+        canvas1.get_tk_widget().pack(side='left', fill='both', expand=True)
+
+        # Codon usage frequency plot
+        rna = analyzer.transcribe()
         codon_counts = {}
-        for i in range(0, len(rna_sequence) - 2, 3):
-            codon = rna_sequence[i:i + 3]
+        for i in range(0, len(rna) - 2, 3):
+            codon = rna[i:i + 3]
             codon_counts[codon] = codon_counts.get(codon, 0) + 1
 
-        fig, ax = plt.subplots(figsize=(10, 2), dpi=100)
-        ax.bar(codon_counts.keys(), codon_counts.values(), color='skyblue')
-        ax.set_xlabel("Codons")
-        ax.set_ylabel("Frequency")
-        ax.set_title("Codon occurrence frequency")
-
-        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+        fig2 = plt.Figure(figsize=(8, 4))
+        ax2 = fig2.add_subplot(111)
+        ax2.bar(codon_counts.keys(), codon_counts.values())
+        ax2.set_title("Codon Usage Frequency")
+        ax2.tick_params(axis='x', rotation=45)
+        canvas2 = FigureCanvasTkAgg(fig2, self.plot_frame2)
+        canvas2.get_tk_widget().pack(fill='both', expand=True)
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = DNAApp(root)
+    root.geometry("900x900")
     root.mainloop()
