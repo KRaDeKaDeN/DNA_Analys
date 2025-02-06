@@ -12,6 +12,7 @@ class SequenceValidationError(Exception):
     pass
 
 
+
 class Sequence(ABC):
     """Abstract basic class for biological sequences"""
     VALID_BASES: set = set()
