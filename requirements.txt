@@ -1,4 +1,5 @@
-tk
+tkinter
 matplotlib
 biopython
 ruff
+seaborn

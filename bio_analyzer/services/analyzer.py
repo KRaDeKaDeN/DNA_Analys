@@ -24,7 +24,8 @@ class AnalysisResult:
 			f"Start Codons Positions: {self._data['start_codons']}\n"
 			f"Stop Codons Positions: {self._data['stop_codons']}\n\n"
 			f"RNA Sequence (first 50 bases):\n{self._data['rna'][:50] if self._data['rna'] else 'N/A'}...\n\n"
-			f"Protein Sequence:\n{self._data['protein'] or 'N/A'}"
+			f"Protein Sequence:\n{self._data['protein'] or 'N/A'}\n\n"
+			f"Palindromic Sequences:\n {len(self._data['palindromes'])} found\n"
 		)
 
 
@@ -36,16 +37,34 @@ class SequenceAnalyzer:
 		self._rna = dna.transcribe()
 		self._protein = self._rna.translate()
 
+	def set_palindrome_params(self, min_len: int, max_len: int):
+		"""Checking and installing parameters"""
+		if min_len < 4:
+			raise ValueError("Minimum length must be ≥4")
+		if max_len < min_len:
+			raise ValueError("Max length must be ≥ min length")
+		if max_len > 1000:
+			raise ValueError("For sequences >1000bp use batch processing")
+		self.palindrome_params = (min_len, max_len)
+
 	def analyze(self) -> AnalysisResult:
-		"""Perform comprehensive analysis"""
-		return AnalysisResult(
-			{
-				"length": len(self._dna),
-				"base_counts": self._dna.count_bases(),
-				"gc_content": self._dna.gc_content(),
-				"start_codons": self._dna.find_codons("start"),
-				"stop_codons": self._dna.find_codons("stop"),
-				"rna": self._rna.sequence,
-				"protein": self._protein,
-			}
-		)
+		"""Perform comprehensive analysi swith current parameters"""
+		min_len, max_len = self.palindrome_params
+		return AnalysisResult({
+			"length":
+			len(self._dna),
+			"base_counts":
+			self._dna.count_bases(),
+			"gc_content":
+			self._dna.gc_content(),
+			"start_codons":
+			self._dna.find_codons("start"),
+			"stop_codons":
+			self._dna.find_codons("stop"),
+			"rna":
+			self._rna.sequence,
+			"protein":
+			self._protein,
+			"palindromes":
+			self._dna.find_palindromic_sequences(min_len, max_len)
+		})

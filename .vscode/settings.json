@@ -10,7 +10,5 @@
 		"**/*.pyc": true,
 		"**/*.pyo": true,
 	},
-	"ruff.format.args": [
-		"--config=.vscode/.ruff.toml"
-	]
+	"ruff.configuration":".vscode/.ruff.toml"
 }
