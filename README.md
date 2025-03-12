@@ -16,6 +16,7 @@ A Python application for DNA/RNA analysis with GUI visualization
 - BioPython
 - Matplotlib
 - Tkinter
+- Seaborn
 
 ## Installation
 ```bash
