@@ -50,21 +50,15 @@ class SequenceAnalyzer:
 	def analyze(self) -> AnalysisResult:
 		"""Perform comprehensive analysi swith current parameters"""
 		min_len, max_len = self.palindrome_params
-		return AnalysisResult({
-			"length":
-			len(self._dna),
-			"base_counts":
-			self._dna.count_bases(),
-			"gc_content":
-			self._dna.gc_content(),
-			"start_codons":
-			self._dna.find_codons("start"),
-			"stop_codons":
-			self._dna.find_codons("stop"),
-			"rna":
-			self._rna.sequence,
-			"protein":
-			self._protein,
-			"palindromes":
-			self._dna.find_palindromic_sequences(min_len, max_len)
-		})
+		return AnalysisResult(
+			{
+				"length": len(self._dna),
+				"base_counts": self._dna.count_bases(),
+				"gc_content": self._dna.gc_content(),
+				"start_codons": self._dna.find_codons("start"),
+				"stop_codons": self._dna.find_codons("stop"),
+				"rna": self._rna.sequence,
+				"protein": self._protein,
+				"palindromes": self._dna.find_palindromic_sequences(min_len, max_len),
+			}
+		)
